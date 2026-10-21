@@ -2,7 +2,9 @@
 
 2026-10-21. These are reduced observations, not fixes to the owner compilers.
 Pinned MaiaCpp 09db55c, MaiaC 32ebd46, MaiaCC 1c7bbc5, Regex b66a74b.
-No principal compiler/Regex or its pinned submodule was edited.
+No principal compiler/Regex was edited during the initial owner validation.
+The separately authorized indexed-copy correction during consumer integration is
+recorded below; this does not repair all earlier toolchain observations.
 
 ## MaiaCC character-class spelling
 
@@ -69,3 +71,20 @@ The probe uses explicit object sizes and memcpy snapshots for storage/unchanged-
 output checks; it does not rely on `sizeof(*function_returning_pointer())` or
 aggregate assignment from a pointer-return expression being lowered correctly.
 These are test-harness portability choices, not fixes to general MaiaC semantics.
+
+## Indexed struct assignment discovered by the real shell consumer
+
+The consumer exposed corruption in `code[i] = program->code[j]`, which had been
+lowered to a scalar load/store rather than a complete object copy. A native C89
+reduction returned the expected sum 56, but the old MaiaC returned 1048; direct
+field writes/readback returned 56 in both. The wrong value depends on addresses
+and prior memory contents. Isolated passing tests are insufficient evidence for
+this embedding case.
+
+The owner explicitly authorized fixing MaiaC and propagating it. MaiaC f7f76bd
+now retains indexed struct-valued rvalue addresses and emits a full struct copy
+for indexed aggregate destinations. Native/guest reduction and added regressions
+pass, along with its 43-group full bundle and 13 extra diagnostics. MaiaCpp
+01a2fcc consumes that published fix. This update changes MaiaGlob's compiler
+pin, not its runtime or generated frontend sources. Re-run the complete owner
+validation with that pin before publication and downstream use.

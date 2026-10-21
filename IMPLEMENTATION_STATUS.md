@@ -38,7 +38,7 @@ step. Consumer integration follows owner publication through its own submodule.
   instruction/range programs and match work counters. Guest walker and API
   contract checks also passed. 500 repetitions (with repeated full walker tests)
   restored stack and kept memory stable at 18 pages. Compiler scratch is 94912
-  bytes on WASM. Test binary is 1144561 bytes and is ignored under build/.
+  bytes on WASM. Test binary with the corrected compiler is 1144603 bytes and is ignored under build/.
 - `node scripts/check-generated.mjs`: PASS; all 5 generated source artifacts
   reproduce byte for byte and all 16 recursive dependency pins match.
 - The old adversarial 49-byte pattern on 32 input bytes finishes with NOMATCH
@@ -48,10 +48,16 @@ step. Consumer integration follows owner publication through its own submodule.
 ## Publication / consumer work pending
 
 Owner-library functional validation is complete. Reduced toolchain observations
-are recorded in TOOLCHAIN_FINDINGS.md; no compiler owner source was changed.
+are recorded in TOOLCHAIN_FINDINGS.md. The initial library is public at commit
+c262104. Consumer integration then exposed indexed struct-copy corruption in
+MaiaC. The owner authorized its correction and propagation: published MaiaC
+f7f76bd / MaiaCpp 01a2fcc are now pinned here, and `make verify` plus generated
+reproduction passed again (log /tmp/maia-glob-struct-copy-verify.log).
+Library API, runtime source and generated frontend source are unchanged.
 
-Public owner creation/commit/push is now authorized; publish this owner first.
-Only then add the published pinned library to MaiaOS,
+The owner repository is public and its first commit is already a MaiaOS
+submodule. Publish this validated compiler-pin update before the consumer uses
+it. Continue the already approved shell work to
 preserve generated-shell quote provenance, add filename expansion before command
 dispatch, and extend ls to multiple literal/expanded file/directory operands.
 Actual VFS privacy, backpressure and LVGL/kernel tests are still consumer work.

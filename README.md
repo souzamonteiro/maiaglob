@@ -2,9 +2,10 @@
 
 Portable filename-pattern library for the Maia Suite: bounded C89 matcher and
 callback directory walker, with a C++98 pattern compiler generated from EBNF by
-MaiaCC. Initial public GitHub publication is authorized by the owner. Shell
-integration follows publication and a pinned-submodule step, as required by
-the ecosystem protocol. No npm release or version change is part of this step.
+MaiaCC. The owner project is published at
+https://github.com/souzamonteiro/maiaglob. Shell integration consumes a published
+commit through its own submodule, as required by the ecosystem protocol.
+No npm release or version change is part of the current work.
 
 The original `../glob-1.0` is preserved unchanged. MaiaGlob is a new Apache 2.0
 implementation, without recursive star backtracking, a native dirent dependency,
