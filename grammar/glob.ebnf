@@ -1,0 +1,22 @@
+/* MaiaGlob pattern syntax. Generated lexer/parser exclusively via MaiaCC. */
+GlobPattern ::= Atom* EOF
+Atom ::= Class | STAR | QUESTION | Literal
+Literal ::= ESCAPED | CHAR | BANG | DASH | CLOSE | SLASH
+Class ::= OPEN Negation? (InitialClose | ClassElement) ClassElement* CLOSE
+Negation ::= BANG
+InitialClose ::= CLOSE
+ClassElement ::= Range | ClassScalar
+Range ::= ClassScalar DASH ClassScalar
+ClassScalar ::= ESCAPED | CHAR | STAR | QUESTION | OPEN | BANG | DASH
+<?TOKENS?>
+EOF ::= $
+STAR ::= #x2A
+QUESTION ::= #x3F
+OPEN ::= #x5B
+CLOSE ::= #x5D
+BANG ::= #x21
+DASH ::= #x2D
+SLASH ::= #x2F
+/* Both generated targets use UTF-16 lexical units; keep a scalar in one token. */
+ESCAPED ::= #x5C ([#xD800-#xDBFF] [#xDC00-#xDFFF] | [^#x0#xD800-#xDFFF])
+CHAR ::= [#xD800-#xDBFF] [#xDC00-#xDFFF] | [^#x2D#x0#x2A#x3F#x5B#x5D#x21#x5C#x2F#xD800-#xDFFF]

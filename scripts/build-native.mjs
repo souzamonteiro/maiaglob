@@ -1,0 +1,13 @@
+import {execFileSync as run} from 'node:child_process';
+import fs from 'node:fs';
+fs.mkdirSync('build',{recursive:true});
+const sanitize=process.argv.includes('--sanitize');
+const flags=sanitize?['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']:['-O2'];
+const c=['-std=c89','-pedantic-errors','-Wall','-Wextra',...flags];
+const cpp=['-std=c++98','-pedantic-errors','-Wall','-Wextra','-Wno-unused-function',...flags];
+const cc=process.env.CC||'clang',cxx=process.env.CXX||'clang++';
+for(const [source,object] of [['maia_glob.c','runtime'],['maiacpp/maiaregex/maia_regex.c','regex']])run(cc,[...c,'-c',source,'-o',`build/${object}.o`],{stdio:'inherit'});
+run(cxx,[...cpp,'-c','maia_glob_compile.cpp','-o','build/compiler.o'],{stdio:'inherit'});
+run(cc,[...c,'-DMAIA_GLOB_PROBE_NATIVE','tests/driver.c','build/runtime.o','build/regex.o','build/compiler.o','-o','build/native-driver'],{stdio:'inherit'});
+run('ar',['rcs','build/libmaiaglob.a','build/runtime.o','build/regex.o','build/compiler.o'],{stdio:'inherit'});
+console.log(`Strict C89/C++98 native library and probe built${sanitize?' with ASan/UBSan':''}.`);

@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+const names=fs.readdirSync('generated').sort();
+const hashes=()=>names.map(n=>[n,createHash('sha256').update(fs.readFileSync(`generated/${n}`)).digest('hex')]);
+const before=hashes();execFileSync(process.execPath,['scripts/generate.mjs'],{stdio:'pipe'});
+assert.deepEqual(hashes(),before,'Generated frontend sources must reproduce byte for byte');
+const pins=execFileSync('git',['submodule','status','--recursive'],{encoding:'utf8'}).trimEnd().split('\n');
+assert.ok(pins.length>=1&&pins.every(line=>line[0]===' '),'All dependency gitlinks must be initialized at their recorded commits');
+assert.equal(execFileSync('git',['-C','maiacpp','status','--porcelain','--untracked-files=no'],{encoding:'utf8'}),'','Pinned compiler checkout must be clean');
+console.log(`All ${names.length} generated source artifacts reproduce exactly; ${pins.length} recursive dependency pins match.`);
