@@ -1,11 +1,15 @@
 # MaiaGlob and shell expansion proposal
 
-Status: approved by the owner on 2026-10-21; owner library implemented and native/WASM validated; shell integration pending.
+Status: approved by the owner on 2026-10-21; owner library and strengthened native/WASM validation complete; shell integration pending final consumer validation.
 The owner explicitly authorized this contract, excluding GitHub repository
 creation, commit/push, npm publication and version changes. See API.md for exact
 implemented signatures/status values and IMPLEMENTATION_STATUS.md for evidence.
 Existing MaiaOS cat work is preserved separately. Shell consumption must wait for
 separately authorized owner publication and a pinned in-repository submodule.
+
+Subsequent approvals authorized public GitHub creation, owner publication,
+consumer submodule integration and tested MaiaC correction/propagation. They do
+not include npm, version changes or publication of MaiaOS/cat work.
 
 ## Boundaries and targets
 

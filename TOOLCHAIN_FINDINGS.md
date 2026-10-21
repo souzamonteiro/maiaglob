@@ -88,3 +88,35 @@ pass, along with its 43-group full bundle and 13 extra diagnostics. MaiaCpp
 01a2fcc consumes that published fix. This update changes MaiaGlob's compiler
 pin, not its runtime or generated frontend sources. Re-run the complete owner
 validation with that pin before publication and downstream use.
+
+## Member-array stride correction and walker coverage
+
+The real shell exposed corrupted component paths (`child/t.txt` instead of
+`child/deep.txt`). A reduced byte-array member expression advanced 20 bytes for
+`text + 5`, while a 12-byte struct-array member advanced only four bytes for +1.
+Published MaiaC 196f8ba resolves field element metadata and pointer classification;
+its focused regressions and full bundle plus 13 extra diagnostics pass. The
+existing address-of-index idiom remains valid source, but was insufficient to
+avoid the defect in byte-buffer concatenation elsewhere.
+
+Review also found that the original WASM walker harness did not execute its 18
+`WALK_CASE` macro scenarios. MaiaC preprocessing left these calls unexpanded
+after a later `#undef`; their guest calls did not establish coverage. Native
+execution did run them. The replacement harness uses explicit calls, an execution
+counter (exactly 18), and a deliberately wrong path expectation that must fail.
+This change strengthens tests without changing expectations, library runtime,
+grammar or API. A general preprocessor/unknown-call diagnostic repair remains a
+separate owner issue; this harness no longer depends on that macro behavior.
+
+## Reused walker storage and sizeof a dereferenced struct
+
+After the stride fix, explicit guest cases reached scenario 8 and failed `.`
+after `/`, although a fresh isolated `.` traversal passed. Inspecting poisoned
+walker storage showed that `maia_glob_walk_begin` cleared only the first word:
+MaiaC measured `sizeof(*w)` as the pointer size rather than the struct size.
+The runtime's C89 memset expression is correct; no runtime workaround is applied.
+Published MaiaC e173259 corrects this aggregate sizeof path; its complete
+regression suite and repeated-reset test passed. Published MaiaCpp f800a2f
+consumes the fix. Full MaiaGlob verification now passes all 18 guest scenarios
+and repeated traversal with these pins. Diagnostics now expose the actual
+case count, last status and joined paths when the guest walker assertion fails.

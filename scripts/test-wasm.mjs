@@ -23,7 +23,11 @@ const execute=c=>{
  assert.equal(e.__stack_ptr.value,stack,'Guest stack restored');return result.join(' ');
 };
 for(let i=0;i<corpus.cases.length;i++)assert.equal(execute(corpus.cases[i]),corpus.output[i],`Native/WASM parity case ${i}: ${JSON.stringify(corpus.cases[i])}`);
-assert.equal(e.probe_walk_tests(),0,'Guest callback traversal, yields, quotas and cleanup');
+const walked=e.probe_walk_tests();
+const walkOutput=Buffer.from(e.memory.buffer,e.probe_walk_last_output(),4096);
+assert.equal(walked,0,`Guest traversal: executed=${e.probe_walk_case_count()}, status=${e.probe_walk_last_status()}, paths=${JSON.stringify(walkOutput.subarray(0,walkOutput.indexOf(0)).toString())}`);
+assert.equal(e.probe_walk_case_count(),18,'Every callback scenario actually executed');
+assert.equal(e.probe_walk_negative_control(),6,'A deliberately wrong expected path must fail');
 assert.equal(e.probe_contract_tests(),0,'Guest input/storage contract checks');
 const pages=e.memory.buffer.byteLength/65536;
 for(let i=0;i<500;i++){

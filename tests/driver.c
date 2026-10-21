@@ -57,6 +57,7 @@ static int unhex(const char *hex,unsigned char *out,unsigned int capacity){
 int main(void){
     char line[11000],p[513],n[8193],m[513];unsigned int flags,steps,i;int pn,nn,mn,compiled,matched;
     if(probe_walk_tests()!=0){fprintf(stderr,"Walker failure %d\n",probe_walk_tests());return 4;}
+    if(probe_walk_case_count()!=18u||probe_walk_negative_control()!=6){fprintf(stderr,"Walker coverage/negative control failure\n");return 6;}
     if(probe_contract_tests()!=0){fprintf(stderr,"Contract failure %d\n",probe_contract_tests());return 5;}
     while(fgets(line,sizeof(line),stdin)){
         if(sscanf(line,"%512s %8192s %512s %u %u",p,n,m,&flags,&steps)!=5)return 2;

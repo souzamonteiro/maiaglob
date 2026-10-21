@@ -1,64 +1,62 @@
 # MaiaGlob implementation status
 
-2026-10-21. The owner approved DESIGN.md implementation and subsequently
-authorized public souzamonteiro/maiaglob creation, initial commit/push and a pinned
-MaiaOS submodule. This initial publication contains the validated owner library.
-No npm release, version change or MaiaOS/cat publication is authorized in this
-step. Consumer integration follows owner publication through its own submodule.
+2026-10-21. Owner implementation and strengthened native/WASM validation are
+complete. Public repository creation, initial publication, submodule integration
+and tested compiler-fix propagation are explicitly authorized. No npm release,
+version change or MaiaOS/cat publication is included.
 
-## Implemented locally
+## Implemented
 
-- C89 validated instruction/range API, strict UTF-8 scalar decoding, iterative
-  two-row NFA matcher and finite input/storage/work limits.
-- MaiaCC-generated JavaScript/C++98 lexer/parser from grammar/glob.ebnf, bounded
-  C++98 event collection and semantic instruction construction. Protected-byte
-  masks preserve a caller's quoting decisions without introducing a shell parser.
-- Explicit-stack resumable filesystem callback walker; no dirent/host matching.
-  Cancellation, pending output retry, provider errors and traversal quotas.
-- Strict native library build, sanitizer build, generated frontend comparison,
-  independent matching oracle, invalid API tests, callback fixtures, own pinned
-  MaiaCpp/MaiaC/Regex/WASM build and raw-byte execution harness.
+- Portable C89 validated instruction/range API, strict UTF-8 scalar matching,
+  iterative two-row NFA, finite storage/work limits and caller-owned state.
+- MaiaCC-generated JavaScript/C++98 pattern lexer/parser from grammar/glob.ebnf;
+  bounded semantic construction and protected-byte masks for caller quoting.
+- Explicit-stack resumable callback walker, yields, cancellation, pending-output
+  retry, provider errors and finite traversal quotas. No host matching or dirent.
+- Own pinned MaiaCpp/MaiaC/Regex/WASM toolchain, native/sanitizer and actual WASM
+  execution, independent matching oracle and generated-source reproduction.
 
-## Verified milestones
+## Final verification
 
-- `node scripts/test-grammar.mjs`: PASS, ASCII literal coverage and valid/invalid
-  class/escape/path/Unicode syntax with the generated JavaScript parser.
-- `node scripts/build-native.mjs --sanitize` and
-  `node scripts/test-matching.mjs`: PASS, strict C89/C++98, ASan/UBSan; 10638 cases
-  including exhaustive reference-DP comparisons, Unicode, protected masks,
-  invalid encodings/classes, finite adversarial matching and API bounds.
-  Native driver also runs 18 walker scenarios and 100 cancellation repetitions.
-- `node scripts/test-frontends.mjs`: PASS, 10621 accepted cases with identical
-  JavaScript-generated AST semantics and native C++98 instruction/range output.
-- `make verify`: PASS (exit 0), final log /tmp/maiaglob-verify-final.log.
-  Generated JavaScript grammar, strict C89/C++98 sanitizer build, native reference
-  corpus and frontend parity passed. Full frontend/runtime compiled through the
-  pinned MaiaCpp -> C89 -> MaiaC/MaiaWASM path, with strict emitted C89 validation.
-  Actual WASM: **10638 cases identical** to native, including statuses, complete
-  instruction/range programs and match work counters. Guest walker and API
-  contract checks also passed. 500 repetitions (with repeated full walker tests)
-  restored stack and kept memory stable at 18 pages. Compiler scratch is 94912
-  bytes on WASM. Test binary with the corrected compiler is 1144603 bytes and is ignored under build/.
-- `node scripts/check-generated.mjs`: PASS; all 5 generated source artifacts
-  reproduce byte for byte and all 16 recursive dependency pins match.
-- The old adversarial 49-byte pattern on 32 input bytes finishes with NOMATCH
-  after 3217 matcher steps. With a 100-step quota it returns LIMIT at exactly 100.
-  This is a bounded-work result, not a general timing benchmark.
+- `make verify`: PASS. Strict C89/C++98 ASan/UBSan, JavaScript grammar coverage,
+  **10638 native reference cases**, **10621 JavaScript/native frontend semantic
+  programs**, and **10638 actual native/WASM cases** with identical statuses,
+  complete instruction/range programs and match work counters.
+- Native and guest execute **18 callback traversal scenarios**, assert their
+  execution count, and reject a deliberately wrong pathname expectation. This
+  includes component paths, root/dot forms, yields, limits, faults and cleanup.
+  An additional 100 cancellation cycles run per full walker check.
+- 500 repeated guest operations, including a full walker rerun every 25 rounds:
+  stack restored, memory stable at **18 pages**. Compiler workspace **94912 bytes**.
+  Ignored test WASM is **1149947 bytes**.
+- `node scripts/check-generated.mjs`: PASS. All **5 generated source artifacts**
+  reproduce byte for byte; **16 recursive dependency pins** match.
+- Adversarial 49-byte pattern / 32-byte input: NOMATCH after 3217 finite steps;
+  a 100-step quota returns LIMIT at exactly 100. This is not a general benchmark.
 
-## Publication / consumer work pending
+## Coverage correction and compiler findings
 
-Owner-library functional validation is complete. Reduced toolchain observations
-are recorded in TOOLCHAIN_FINDINGS.md. The initial library is public at commit
-c262104. Consumer integration then exposed indexed struct-copy corruption in
-MaiaC. The owner authorized its correction and propagation: published MaiaC
-f7f76bd / MaiaCpp 01a2fcc are now pinned here, and `make verify` plus generated
-reproduction passed again (log /tmp/maia-glob-struct-copy-verify.log).
-Library API, runtime source and generated frontend source are unchanged.
+The first guest walker claim was incomplete: MaiaC preprocessing left the 18
+WALK_CASE macro calls unexpanded after a later undef. Native execution did run
+those cases; the guest result did not prove their execution. The matching/program
+corpus, API checks and explicit cancellation loop remain valid earlier evidence.
 
-The owner repository is public and its first commit is already a MaiaOS
-submodule. Publish this validated compiler-pin update before the consumer uses
-it. Continue the already approved shell work to
-preserve generated-shell quote provenance, add filename expansion before command
-dispatch, and extend ls to multiple literal/expanded file/directory operands.
-Actual VFS privacy, backpressure and LVGL/kernel tests are still consumer work.
-The existing dirty MaiaOS cat feature is preserved and unpublished.
+The corrected harness uses explicit calls, an exact execution counter, a negative
+control, and last-status/path diagnostics. Its actual execution exposed retained
+state after root traversal. No expected result was weakened to pass.
+
+Consumer integration exposed three separately reduced MaiaC aggregate defects:
+indexed struct copy, member-array/pointer-field strides, and sizeof a dereferenced
+struct returning pointer size (incomplete memset). Published MaiaC **e173259** and
+MaiaCpp **f800a2f** contain the authorized corrections and are pinned here. Final
+validation above passed with those published dependencies. Library API, runtime
+and generated frontend sources are unchanged. See TOOLCHAIN_FINDINGS.md for the
+remaining general preprocessor and generator observations.
+
+## Publication and consumer boundary
+
+Initial owner publication is c262104; compiler propagation began at 3191731.
+This update records the fully tested compiler pin, stronger harness and corrected
+evidence. MaiaOS must consume the published owner commit through its own
+submodule before completing real VFS/stream/kernel/LVGL integration tests.
+The dirty MaiaOS shell/cat work remains local and unpublished.

@@ -29,10 +29,17 @@ static int fixture_close(void *context,int handle){GlobFixture *f=(GlobFixture*)
     if(handle<=0||handle>8||!f->used[handle-1])return -1;
     f->used[handle-1]=0u;--f->live;++f->closed;return 0;
 }
+static unsigned int walker_case_count=0u;
+static int walker_last_status=0;
+static char walker_last_output[4096];
+int probe_walk_last_status(void){return walker_last_status;}
+const char *probe_walk_last_output(void){return walker_last_output;}
+unsigned int probe_walk_case_count(void){return walker_case_count;}
 static int walker_case(const char *text,const char *expected,int expected_status,unsigned int option) {
     MaiaGlobWalker walker;MaiaGlobFs fs;GlobFixture fixture;MaiaGlobLimits l;
     MaiaGlobProgram *p=probe_program_data();unsigned char output[1024];char joined[4096];
     unsigned int length,type,rounds,used,small;int status;
+    ++walker_case_count;
     memcpy(pattern,text,strlen(text));if(probe_compile((unsigned int)strlen(text),0u)!=0)return 1;
     memset(&fixture,0,sizeof(fixture));fixture.block_open=1u;fixture.block_read=1u;
     fs.context=&fixture;fs.open=fixture_open;fs.read=fixture_read;fs.close=fixture_close;
@@ -50,6 +57,7 @@ static int walker_case(const char *text,const char *expected,int expected_status
             memcpy(joined+used,output,length);used+=length;joined[used++]='|';joined[used]=0;small=1u;}
         if(++rounds>1000u)return 5;
     }while(status==5||status==6||status==8);
+    walker_last_status=status;memcpy(walker_last_output,joined,used+1u);
     if(status!=expected_status||strcmp(joined,expected)!=0){
 #ifdef MAIA_GLOB_PROBE_NATIVE
         fprintf(stderr,"%s: status %d expected %d, paths %s expected %s\n",text,status,expected_status,joined,expected);
@@ -60,25 +68,25 @@ static int walker_case(const char *text,const char *expected,int expected_status
     if(fixture.live)return 8;return 0;
 }
 int probe_walk_tests(void){int r;unsigned int i;MaiaGlobWalker w;MaiaGlobFs fs;MaiaGlobLimits l;GlobFixture f;
-#define WALK_CASE(p,e,s,o) r=walker_case(p,e,s,o);if(r)return (int)(__LINE__*10)+r
-    WALK_CASE("","",7,0u);
-    WALK_CASE("*.c","a.c|two words.c|",7,0u);
-    WALK_CASE(".*",".hidden|",7,0u);
-    WALK_CASE("src/*.c","src/x.c|",7,0u);
-    WALK_CASE("src/*/*.c","src/sub/deep.c|",7,0u);
-    WALK_CASE("src/","src/|",7,0u);
-    WALK_CASE("/","/|",7,0u);
-    WALK_CASE(".",".|",7,0u);
-    WALK_CASE("./","./|",7,0u);
-    WALK_CASE("missing/*","",7,0u);
-    WALK_CASE("*","a.c|",3,1u);
-    WALK_CASE("*.c","a.c|",3,2u);
-    WALK_CASE("src/*","",3,3u);
-    WALK_CASE("src/*","",3,4u);
-    WALK_CASE("*","",3,5u);
-    WALK_CASE("*","",3,6u);
-    WALK_CASE("*","",4,7u);
-    WALK_CASE("*","",7,8u);
+    walker_case_count=0u;
+    r=walker_case("","",7,0u);if(r)return 100+r;
+    r=walker_case("*.c","a.c|two words.c|",7,0u);if(r)return 200+r;
+    r=walker_case(".*",".hidden|",7,0u);if(r)return 300+r;
+    r=walker_case("src/*.c","src/x.c|",7,0u);if(r)return 400+r;
+    r=walker_case("src/*/*.c","src/sub/deep.c|",7,0u);if(r)return 500+r;
+    r=walker_case("src/","src/|",7,0u);if(r)return 600+r;
+    r=walker_case("/","/|",7,0u);if(r)return 700+r;
+    r=walker_case(".",".|",7,0u);if(r)return 800+r;
+    r=walker_case("./","./|",7,0u);if(r)return 900+r;
+    r=walker_case("missing/*","",7,0u);if(r)return 1000+r;
+    r=walker_case("*","a.c|",3,1u);if(r)return 1100+r;
+    r=walker_case("*.c","a.c|",3,2u);if(r)return 1200+r;
+    r=walker_case("src/*","",3,3u);if(r)return 1300+r;
+    r=walker_case("src/*","",3,4u);if(r)return 1400+r;
+    r=walker_case("*","",3,5u);if(r)return 1500+r;
+    r=walker_case("*","",3,6u);if(r)return 1600+r;
+    r=walker_case("*","",4,7u);if(r)return 1700+r;
+    r=walker_case("*","",7,8u);if(r)return 1800+r;
     for(i=0u;i<100u;++i){
         memcpy(pattern,"*",1u);if(probe_compile(1u,0u)!=0)return 9001;
         memset(&f,0,sizeof(f));fs.context=&f;fs.open=fixture_open;fs.read=fixture_read;fs.close=fixture_close;
@@ -87,5 +95,6 @@ int probe_walk_tests(void){int r;unsigned int i;MaiaGlobWalker w;MaiaGlobFs fs;M
         maia_glob_walk_cancel(&w);if(f.live||f.opened!=f.closed)return 9003;
     }
     return 0;
-#undef WALK_CASE
 }
+
+int probe_walk_negative_control(void){return walker_case("*.c","WRONG",7,0u);}
