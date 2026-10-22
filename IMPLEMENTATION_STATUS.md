@@ -60,3 +60,18 @@ This update records the fully tested compiler pin, stronger harness and correcte
 evidence. MaiaOS must consume the published owner commit through its own
 submodule before completing real VFS/stream/kernel/LVGL integration tests.
 The dirty MaiaOS shell/cat work remains local and unpublished.
+
+## Owner-requested example artifact publication
+
+The owner subsequently requested committing the existing MaiaC/MaiaJS generated
+examples for GitHub/mobile review. MaiaC 5c282fe records its validated example
+outputs and scoped README policy; MaiaCpp 426947f consumes it. This is an
+artifact-only update: compiler implementation, grammar, runtime and library
+sources are unchanged from the full validation above. The published compiler
+fix commits e173259/f800a2f remain the relevant implementation milestones.
+
+This repository records the new published compiler gitlink. Validation reruns
+actual guest corpus/walker checks and generated-source reproduction; full
+compilation need not be repeated for unchanged compiler/source inputs. No npm,
+version change or MaiaOS feature publication is included. Temporary ignored
+library build outputs remain outside the versioned example policy.
