@@ -1,5 +1,15 @@
 # MaiaGlob implementation status
 
+## Validated toolchain update — 2026-10-24
+
+Published MaiaCpp fe92e64 / MaiaC 47c357e correct typed unsigned compound
+assignment. The library/API/generated grammar remain unchanged. `make verify`
+passes ASan/UBSan,10638 native matching cases,10621 frontend program comparisons
+and10638 native/WASM cases, including actual walkers and500 stable repetitions
+at18 pages. Current ignored test WASM is1151919 bytes; workspace94912 bytes.
+`node scripts/check-generated.mjs` reproduces all5 generated artifacts exactly,
+with16 recursive dependency pins matching. No npm or version change.
+
 2026-10-21. Owner implementation and strengthened native/WASM validation are
 complete. Public repository creation, initial publication, submodule integration
 and tested compiler-fix propagation are explicitly authorized. No npm release,
