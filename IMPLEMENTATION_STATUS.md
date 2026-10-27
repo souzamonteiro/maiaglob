@@ -1,5 +1,17 @@
 # MaiaGlob implementation status
 
+## Validated UTF-8 compiler propagation — 2026-10-27
+
+Published MaiaCpp58adfa3 / MaiaC4fc3ee9 provide raw narrow-literal UTF-8
+encoding while preserving explicit numeric byte escapes. This library consumes
+them through its own recursive compiler submodule; library/API/grammar unchanged.
+`make verify` passes native C89/C++98 ASan/UBSan,10638 reference matching cases,
+10621 JavaScript/native program comparisons and10638 actual native/WASM cases,
+including walkers/API and500 repetitions stable at18pages. Test WASM1151919bytes,
+workspace94912bytes. `node scripts/check-generated.mjs` reproduces all5 artifacts
+exactly;16recursive gitlinks match and were verified against published commits.
+Reference WASM, not MaiaWASMVM/device conformance. No npm/version change.
+
 ## Validated static-storage toolchain update — 2026-10-27
 
 Published MaiaCpp9329dfc / MaiaC8c750f2 provide direct global/static struct
