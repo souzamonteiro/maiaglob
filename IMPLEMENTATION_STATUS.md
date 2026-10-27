@@ -1,5 +1,20 @@
 # MaiaGlob implementation status
 
+## Validated static-storage toolchain update — 2026-10-27
+
+Published MaiaCpp9329dfc / MaiaC8c750f2 provide direct global/static struct
+members, constant numeric casts and bounded C++98 static-local lifetime.
+This repository consumes those published commits through its own recursive
+submodule. Library code, API and generated frontend artifacts are unchanged.
+
+`make verify` passes strict native C89/C++98 ASan/UBSan,10638 native matching
+cases,10621 JavaScript/native frontend comparisons and10638 actual native/WASM
+cases, including guest walkers/API and500 repetitions stable at18 pages.
+The test WASM is1151919 bytes; compiler workspace94912 bytes. The generated-source
+check reproduces all5 artifacts exactly and confirms16 matching recursive pins.
+These are reference-WASM/library tests; MaiaOS VFS/LVGL integration is validated
+separately by that consumer. No npm publication or version change.
+
 ## Validated toolchain update — 2026-10-24
 
 Published MaiaCpp fe92e64 / MaiaC 47c357e correct typed unsigned compound
