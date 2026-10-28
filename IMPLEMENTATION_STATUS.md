@@ -1,5 +1,23 @@
 # MaiaGlob implementation status
 
+## Validated local-struct compiler propagation — 2026-10-27
+
+Published MaiaCpp6aa8eac is recorded through own submodule pin commit1f9fc6d;
+MaiaC4fc3ee9/CC/WASM/Regex pins unchanged. The upstream AST-strict correction
+retains named local plain struct identities/scopes without changing this
+library/API/grammar. Added root git_pull.sh because the protocol helper was
+missing; it uses fail-fast/fast-forward-only pulls and recursive published pins.
+
+`make verify` passes native C89/C++98 ASan/UBSan,10638reference matching cases,
+10621JavaScript/native frontend comparisons and10638actual native/WASM cases,
+walker/API checks and500repetitions stable at18pages. TestWASM1151919bytes,
+workspace94912bytes. `node scripts/check-generated.mjs` reproduces all5sources
+exactly and checks16recursivepins. No generated source/production library change,
+npm publication or version change; build/test outputs remain ignored. Reference
+WASM/library evidence is separate from MaiaOS VFS/LVGL and VM/device conformance.
+Logs:/tmp/maiaglob-local-struct-{pull,verify,generated}.log.
+
+
 ## Validated UTF-8 compiler propagation — 2026-10-27
 
 Published MaiaCpp58adfa3 / MaiaC4fc3ee9 provide raw narrow-literal UTF-8

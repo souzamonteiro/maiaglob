@@ -11,6 +11,11 @@ The original `../glob-1.0` is preserved unchanged. MaiaGlob is a new Apache 2.0
 implementation, without recursive star backtracking, a native dirent dependency,
 or hidden list allocation. See [provenance](PROVENANCE.md).
 
+The published MaiaCpp local-struct correction6aa8eac is consumed and validated
+through this repository's own submodule. Native/sanitizer/WASM verification and
+exact generated-source reproduction pass; see [recorded scope](IMPLEMENTATION_STATUS.md).
+Use `./git_pull.sh` for protocol synchronization before recording updated pins.
+
 ## Build and verify
 
 Requirements: Git, Node.js, make, Clang/Clang++, ar. Compiler/generator versions
