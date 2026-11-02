@@ -437,12 +437,17 @@ struct MaiaCCParseEvents {
   int (*matchesContextual)(void*, unsigned int, const MaiaCCParserToken*);
 };
 
+#define MAIACC_PARSE_RESOURCE_NONE 0
+#define MAIACC_PARSE_RESOURCE_NOMEM 1
+#define MAIACC_PARSE_RESOURCE_LIMIT 2
+
 struct MaiaCCParserState {
   const MaiaCCParserToken* tokens;
   unsigned int tokenCount;
   unsigned int position;
   const MaiaCCParseEvents* events;
   int failed;
+  int resourceError;
   unsigned int errorCount;
   unsigned int errorPosition;
   unsigned int expectedToken;
@@ -460,6 +465,7 @@ static void maiaCCParserStateInit(
   self->position = 0;
   self->events = events;
   self->failed = 0;
+  self->resourceError = MAIACC_PARSE_RESOURCE_NONE;
   self->errorCount = 0;
   self->errorPosition = 0;
   self->expectedToken = 0;
@@ -574,11 +580,12 @@ static int maiaCC_parse_ClassScalar(MaiaCCParserState* self);
 static int maiaCC_parse(MaiaCCParserState* self) {
   self->position = 0;
   self->failed = 0;
+  self->resourceError = MAIACC_PARSE_RESOURCE_NONE;
   self->errorCount = 0;
   size_t columns = (size_t)self->tokenCount + 1;
-  if (columns == 0 || MAIACC_RULE_COUNT > ((size_t)-1) / columns) { self->failed = 1; return 0; }
+  if (columns == 0 || MAIACC_RULE_COUNT > ((size_t)-1) / columns) { self->failed = 1; self->resourceError = MAIACC_PARSE_RESOURCE_LIMIT; return 0; }
   self->failureMemo = (unsigned char*)calloc(MAIACC_RULE_COUNT, columns);
-  if (!self->failureMemo) { self->failed = 1; return 0; }
+  if (!self->failureMemo) { self->failed = 1; self->resourceError = MAIACC_PARSE_RESOURCE_NOMEM; return 0; }
   int accepted = maiaCC_parse_GlobPattern(self) && !self->failed;
   if (accepted) accepted = self->position == self->tokenCount
       || (self->position + 1 == self->tokenCount
